@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: dev-aws-eks
+Parameters:
+  NodeEnv:
+    Type: String
+    Default: dev
+  Region:
+    Type: String
+    Default: ap-southeast-1
+  ProjectName:
+    Type: String
+    Default: mybarber
+  LambdaRunTime:
+    Type: String
+    Default: nodejs14.x
+Resources:
+  EKSCustomVPC:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: EKSCustomVPC/template.yaml
+      Parameters:
+        NodeEnv:
+          Ref: NodeEnv
+        Region:
+          Ref: Region
+        ProjectName:
+          Ref: ProjectName
+        LambdaRunTime:
+          Ref: LambdaRunTime
