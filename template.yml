@@ -30,14 +30,36 @@ Parameters:
   #       - AWSLambdaBasicExecutionRole
 
 Resources:
-  EKSCustomVPC:
+  EKSRole:
     Type: AWS::Serverless::Application
     Properties:
-      Location: './stacks/amazon-eks-vpc-private-subnets.yml'
+      Location: './stacks/amazon-eks-role.yml'
       Parameters:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
         ProjectName: !Ref ProjectName
-        LambdaRunTime: !Ref LambdaRunTime
+
+  EKSCustomVPC:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: './stacks/amazon-eks-vpc-private-public-subnets.yml'
+      Parameters:
+        NodeEnv: !Ref NodeEnv
+        Region: !Ref Region
+        ProjectName: !Ref ProjectName
+  
+  EKSCluster:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: './stacks/amazon-eks-cluster.yml' 
+      Parameters:
+        NodeEnv: !Ref NodeEnv
+        Region: !Ref Region
+        ProjectName: !Ref ProjectName
+        NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
+        eksClusterRoleArn: !GetAtt EKSRole.Outputs.eksClusterRoleArn
+        ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId
+        PublicSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet01Id
+        PublicSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet02Id
 
   

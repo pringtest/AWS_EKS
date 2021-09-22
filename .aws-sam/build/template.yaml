@@ -15,6 +15,17 @@ Parameters:
     Type: String
     Default: nodejs14.x
 Resources:
+  EKSRole:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: EKSRole/template.yaml
+      Parameters:
+        NodeEnv:
+          Ref: NodeEnv
+        Region:
+          Ref: Region
+        ProjectName:
+          Ref: ProjectName
   EKSCustomVPC:
     Type: AWS::Serverless::Application
     Properties:
@@ -26,5 +37,34 @@ Resources:
           Ref: Region
         ProjectName:
           Ref: ProjectName
-        LambdaRunTime:
-          Ref: LambdaRunTime
+  EKSCluster:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: EKSCluster/template.yaml
+      Parameters:
+        NodeEnv:
+          Ref: NodeEnv
+        Region:
+          Ref: Region
+        ProjectName:
+          Ref: ProjectName
+        NodeInstanceRoleArn:
+          Fn::GetAtt:
+          - EKSRole
+          - Outputs.NodeInstanceRoleArn
+        eksClusterRoleArn:
+          Fn::GetAtt:
+          - EKSRole
+          - Outputs.eksClusterRoleArn
+        ControlPlaneSecurityGroupId:
+          Fn::GetAtt:
+          - EKSCustomVPC
+          - Outputs.ControlPlaneSecurityGroupId
+        PublicSubnet01Id:
+          Fn::GetAtt:
+          - EKSCustomVPC
+          - Outputs.PublicSubnet01Id
+        PublicSubnet02Id:
+          Fn::GetAtt:
+          - EKSCustomVPC
+          - Outputs.PublicSubnet02Id

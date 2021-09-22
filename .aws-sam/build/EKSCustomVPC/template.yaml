@@ -7,8 +7,6 @@ Parameters:
     Type: String
   ProjectName:
     Type: String
-  LambdaRunTime:
-    Type: String
   VpcBlock:
     Type: String
     Default: 192.168.0.0/16
@@ -211,58 +209,17 @@ Resources:
       GroupDescription: Cluster communication with worker nodes
       VpcId:
         Ref: VPC
-  eksClusterRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - eks.amazonaws.com
-          Action:
-          - sts:AssumeRole
-      ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-  ClusterEks:
-    DependsOn:
-    - ControlPlaneSecurityGroup
-    - eksClusterRole
-    Type: AWS::EKS::Cluster
-    Properties:
-      Name:
-        Fn::Sub: ${NodeEnv}-k8s-kluster
-      ResourcesVpcConfig:
-        SecurityGroupIds:
-        - Fn::GetAtt:
-          - ControlPlaneSecurityGroup
-          - GroupId
-        SubnetIds:
-        - Ref: PublicSubnet01
-        - Ref: PublicSubnet02
-      RoleArn:
-        Fn::GetAtt:
-        - eksClusterRole
-        - Arn
 Outputs:
-  SubnetIds:
-    Description: Subnets IDs in the VPC
+  PublicSubnet01Id:
     Value:
-      Fn::Join:
-      - ','
-      - - Ref: PublicSubnet01
-        - Ref: PublicSubnet02
-        - Ref: PrivateSubnet01
-        - Ref: PrivateSubnet02
-  SecurityGroups:
+      Ref: PublicSubnet01
+  PublicSubnet02Id:
+    Value:
+      Ref: PublicSubnet02
+  ControlPlaneSecurityGroupId:
     Description: Security group for the cluster control plane communication with worker
       nodes
     Value:
-      Fn::Join:
-      - ','
-      - - Ref: ControlPlaneSecurityGroup
-  VpcId:
-    Description: The VPC Id
-    Value:
-      Ref: VPC
+      Fn::GetAtt:
+      - ControlPlaneSecurityGroup
+      - GroupId
