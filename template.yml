@@ -51,17 +51,17 @@ Resources:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
   
-  EKSCluster:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location: './stacks/amazon-eks-cluster.yml' 
-      Parameters:
-        NodeEnv: !Ref NodeEnv
-        Region: !Ref Region
-        NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
-        eksClusterRoleArn: !GetAtt EKSRole.Outputs.eksClusterRoleArn
-        ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId
-        PublicSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet01Id
-        PublicSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet02Id
+  # EKSCluster:
+  #   Type: AWS::Serverless::Application
+  #   Properties:
+  #     Location: './stacks/amazon-eks-cluster.yml' 
+  #     Parameters:
+  #       NodeEnv: !Ref NodeEnv
+  #       Region: !Ref Region
+  #       NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
+  #       eksClusterRoleArn: !GetAtt EKSRole.Outputs.eksClusterRoleArn
+  #       ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId
+  #       PublicSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet01Id
+  #       PublicSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet02Id
 
   

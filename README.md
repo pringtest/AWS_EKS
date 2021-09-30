@@ -5,7 +5,10 @@
 
 ## Stacks
 - There are 4 stacks used in this template `Resources`, `VPC`, `Roles`, and `EKS Cluster`.
-- ![alt text](./stack.png)
+![alt text](./images/stack.png)
+
+## Architecture
+![alt text](./images/eksArchitecture.png)
 
 ## Installation
 - Requires [NPM][node.js] to install yarn.

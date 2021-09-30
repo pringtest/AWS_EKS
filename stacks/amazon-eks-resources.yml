@@ -11,7 +11,7 @@ Resources:
   ImageStorageS3:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub '${NodeEnv}-image-storage'
+      AccessControl: Private
 
   EksContainerRepo:
     Type: AWS::ECR::Repository
