@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Amazon EKS - Role
+Description: Amazon EKS - Resources
 
 Parameters:
   NodeEnv:
