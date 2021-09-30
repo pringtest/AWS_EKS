@@ -6,8 +6,6 @@ Parameters:
     Type: String
   Region:
     Type: String
-  ProjectName:
-    Type: String
   NodeInstanceRoleArn:
     Type: String
   eksClusterRoleArn:
@@ -49,13 +47,13 @@ Resources:
       # Labels: Json
       # LaunchTemplate: 
         # LaunchTemplateSpecification
-      NodegroupName: !Sub '${NodeEnv}-webserver-nodegroup'
+      NodegroupName: !Sub '${NodeEnv}-nodegroup'
       NodeRole: !Ref NodeInstanceRoleArn
       # ReleaseVersion: String
       # RemoteAccess: 
         # RemoteAccess
       ScalingConfig: 
-        DesiredSize: 0
+        DesiredSize: 1
         MaxSize: 1
         MinSize: 0
       Subnets: 

@@ -9,9 +9,6 @@ Parameters:
   Region:
     Type: String
     Default: ap-southeast-1
-  ProjectName: 
-    Type: String
-    Default: mybarber
   LambdaRunTime:
     Type: String
     Default: nodejs14.x
@@ -37,7 +34,14 @@ Resources:
       Parameters:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
-        ProjectName: !Ref ProjectName
+  
+  EKSResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: './stacks/amazon-eks-resources.yml'
+      Parameters:
+        NodeEnv: !Ref NodeEnv
+        Region: !Ref Region
 
   EKSCustomVPC:
     Type: AWS::Serverless::Application
@@ -46,7 +50,6 @@ Resources:
       Parameters:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
-        ProjectName: !Ref ProjectName
   
   EKSCluster:
     Type: AWS::Serverless::Application
@@ -55,7 +58,6 @@ Resources:
       Parameters:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
-        ProjectName: !Ref ProjectName
         NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
         eksClusterRoleArn: !GetAtt EKSRole.Outputs.eksClusterRoleArn
         ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId

@@ -5,8 +5,6 @@ Parameters:
     Type: String
   Region:
     Type: String
-  ProjectName:
-    Type: String
   NodeInstanceRoleArn:
     Type: String
   eksClusterRoleArn:
@@ -45,7 +43,7 @@ Resources:
       NodeRole:
         Ref: NodeInstanceRoleArn
       ScalingConfig:
-        DesiredSize: 0
+        DesiredSize: 1
         MaxSize: 1
         MinSize: 0
       Subnets:

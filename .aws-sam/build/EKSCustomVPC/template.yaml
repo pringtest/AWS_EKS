@@ -5,8 +5,6 @@ Parameters:
     Type: String
   Region:
     Type: String
-  ProjectName:
-    Type: String
   VpcBlock:
     Type: String
     Default: 192.168.0.0/16
