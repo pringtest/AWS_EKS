@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: image-service
-          image: 396460956865.dkr.ecr.ap-southeast-1.amazonaws.com/dev-k8s-container-repo:maya-image
+          image: ****.dkr.ecr.ap-southeast-1.amazonaws.com/****
           ports:
             - containerPort: 8080
