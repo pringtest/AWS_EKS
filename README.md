@@ -8,6 +8,7 @@
 - ![alt text](./images/stack.png)
 
 ## Architecture
+- Feel free to add or remove which VPC components to suit current use case.
 - ![alt text](./images/eksArchitecture.png)
 
 ## Installation
@@ -17,16 +18,30 @@
 - Requires [SAM CLI][SAM CLI] to deploy stacks into AWS Cloud.
 - Requires [KUBECTL][Kubectl] to manage kubernetes.
 
-For first deployment
+For deployment you can run script that execute sam cli
 ```sh
-cd AWS_EKS
-aws configure --profile <profile name>
-sam build
-sam deploy --guided
+yarn deploy
 ```
-For next deployment you can run script that execute sam cli
+
+## Kubernetes Config
+- Update kubeconfig to interact with the kubernetes cluster in EKS.
 ```sh
-yarn fulldeploy-dev
+aws eks --region <REGION> update-kubeconfig --name <CLUSTER_NAME>
+```
+
+## Kubernetes Deployment
+- go to the ./kubernetes folder and deploy each service templates.
+```sh
+kubectl apply -f ./kubernetes/<SERVICE_FOLDER_NAME>/deployment.yaml
+kubectl apply -f ./kubernetes/<SERVICE_FOLDER_NAME>/service.yaml
+```
+
+## Kubernetes Status
+- To check nodes, deployment, and pods run below command. Please refer [here][Kubectl Command] for more command.
+```sh
+kubectl get nodes
+kubectl get deployment
+kubectl get pods
 ```
 
 ## License
@@ -39,5 +54,6 @@ MIT
    [SAM CLI]: <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html>
    [AWS CLI]: <https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html>
    [Kubectl]: <https://kubernetes.io/docs/tasks/tools/>
+   [Kubectl Command]: <https://kubernetes.io/docs/reference/kubectl/kubectl/>
    [Yarn]: <https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable>
    [Websocketking]: <https://websocketking.com/>

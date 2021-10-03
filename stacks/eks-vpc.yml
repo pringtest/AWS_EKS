@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Amazon EKS VPC - Private and Public subnets'
 
 Parameters:
+  Organization:
+    Type: String
+  Project:
+    Type: String
   NodeEnv:
     Type: String
   Region:
@@ -44,7 +48,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub '${NodeEnv}-eks-vpc'
+          Value: !Sub '${NodeEnv}-${Organization}-${Project}-eks-vpc'
 
   # create internet gateway
   InternetGateway:
@@ -107,7 +111,7 @@ Resources:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${NodeEnv}-eks-public-subnet01"
+          Value: !Sub "${NodeEnv}-${Organization}-${Project}-eks-public-subnet01"
         - Key: kubernetes.io/role/elb
           Value: 1
   
@@ -128,7 +132,7 @@ Resources:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${NodeEnv}-eks-public-subnet02"
+          Value: !Sub "${NodeEnv}-${Organization}-${Project}-eks-public-subnet02"
         - Key: kubernetes.io/role/elb
           Value: 1
   
@@ -148,7 +152,7 @@ Resources:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${NodeEnv}-eks-private-subnet01"
+          Value: !Sub "${NodeEnv}-${Organization}-${Project}-eks-private-subnet01"
         - Key: kubernetes.io/role/internal-elb
           Value: 1
   
@@ -168,7 +172,7 @@ Resources:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${NodeEnv}-eks-private-subnet02"
+          Value: !Sub "${NodeEnv}-${Organization}-${Project}-eks-private-subnet02"
         - Key: kubernetes.io/role/internal-elb
           Value: 1
 
@@ -211,72 +215,82 @@ Resources:
     Properties:
       GroupDescription: Cluster communication with worker nodes
       VpcId: !Ref VPC
+  
+  # create elastic IP for natgateway az1
+  NatGatewayEIP1:
+    DependsOn:
+    - VPCGatewayAttachment
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
 
-  # PrivateRoute01:
-  #   DependsOn:
-  #   - VPCGatewayAttachment
-  #   - NatGateway01
-  #   Type: AWS::EC2::Route
-  #   Properties:
-  #     RouteTableId: !Ref PrivateRouteTable01
-  #     DestinationCidrBlock: 0.0.0.0/0
-  #     NatGatewayId: !Ref NatGateway01
+  # create elastic IP for natgateway az2
+  NatGatewayEIP2:
+    DependsOn:
+    - VPCGatewayAttachment
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+  
+  # create netgateway az1
+  NatGateway01:
+    DependsOn:
+    - NatGatewayEIP1
+    - PublicSubnet01
+    - VPCGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt 'NatGatewayEIP1.AllocationId'
+      SubnetId: !Ref PublicSubnet01
+      Tags:
+      - Key: Name
+        Value: !Sub '${NodeEnv}-${Organization}-${Project}-natgateway-az1'
 
-  # PrivateRoute02:
-  #   DependsOn:
-  #   - VPCGatewayAttachment
-  #   - NatGateway02
-  #   Type: AWS::EC2::Route
-  #   Properties:
-  #     RouteTableId: !Ref PrivateRouteTable02
-  #     DestinationCidrBlock: 0.0.0.0/0
-  #     NatGatewayId: !Ref NatGateway02
+  # create netgateway az2
+  NatGateway02:
+    DependsOn:
+    - NatGatewayEIP2
+    - PublicSubnet02
+    - VPCGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt 'NatGatewayEIP2.AllocationId'
+      SubnetId: !Ref PublicSubnet02
+      Tags:
+      - Key: Name
+        Value: !Sub '${NodeEnv}-${Organization}-${Project}-natgateway-az2'
 
-  # NatGateway01:
-  #   DependsOn:
-  #   - NatGatewayEIP1
-  #   - PublicSubnet01
-  #   - VPCGatewayAttachment
-  #   Type: AWS::EC2::NatGateway
-  #   Properties:
-  #     AllocationId: !GetAtt 'NatGatewayEIP1.AllocationId'
-  #     SubnetId: !Ref PublicSubnet01
-  #     Tags:
-  #     - Key: Name
-  #       Value: !Sub '${AWS::StackName}-NatGatewayAZ1'
+  # create route for natgateway az1
+  PrivateRoute01:
+    DependsOn:
+    - VPCGatewayAttachment
+    - NatGateway01
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable01
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway01
 
-  # NatGateway02:
-  #   DependsOn:
-  #   - NatGatewayEIP2
-  #   - PublicSubnet02
-  #   - VPCGatewayAttachment
-  #   Type: AWS::EC2::NatGateway
-  #   Properties:
-  #     AllocationId: !GetAtt 'NatGatewayEIP2.AllocationId'
-  #     SubnetId: !Ref PublicSubnet02
-  #     Tags:
-  #     - Key: Name
-  #       Value: !Sub '${AWS::StackName}-NatGatewayAZ2'
-
-  # NatGatewayEIP1:
-  #   DependsOn:
-  #   - VPCGatewayAttachment
-  #   Type: 'AWS::EC2::EIP'
-  #   Properties:
-  #     Domain: vpc
-
-  # NatGatewayEIP2:
-  #   DependsOn:
-  #   - VPCGatewayAttachment
-  #   Type: 'AWS::EC2::EIP'
-  #   Properties:
-  #     Domain: vpc
+  # create route for natgateway az2
+  PrivateRoute02:
+    DependsOn:
+    - VPCGatewayAttachment
+    - NatGateway02
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable02
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway02
 
 Outputs:
   PublicSubnet01Id:
     Value: !Ref PublicSubnet01
   PublicSubnet02Id:
     Value: !Ref PublicSubnet02
+  # PrivateSubnet01Id:
+  #   Value: !Ref PrivateSubnet01
+  # PrivateSubnet02Id:
+  #   Value: !Ref PrivateSubnet02
   ControlPlaneSecurityGroupId:
     Description: Security group for the cluster control plane communication with worker nodes
     Value: !GetAtt ControlPlaneSecurityGroup.GroupId

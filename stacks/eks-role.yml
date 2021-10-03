@@ -18,7 +18,7 @@ Mappings:
 
 Resources:
   # create role to for the cluster
-  eksClusterRole:
+  EksClusterRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -55,5 +55,5 @@ Resources:
 Outputs:
   NodeInstanceRoleArn:
     Value: !GetAtt NodeInstanceRole.Arn
-  eksClusterRoleArn:
-    Value: !GetAtt eksClusterRole.Arn
+  EksClusterRoleArn:
+    Value: !GetAtt EksClusterRole.Arn

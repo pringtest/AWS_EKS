@@ -2,13 +2,17 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Amazon EKS - Cluster
 
 Parameters:
+  Organization:
+    Type: String
+  Project:
+    Type: String
   NodeEnv:
     Type: String
   Region:
     Type: String
   NodeInstanceRoleArn:
     Type: String
-  eksClusterRoleArn:
+  EksClusterRoleArn:
     Type: String
   ControlPlaneSecurityGroupId:
     Type: String
@@ -16,52 +20,47 @@ Parameters:
     Type: String
   PublicSubnet02Id:
     Type: String
+  # PrivateSubnet01Id:
+  #   Type: String
+  # PrivateSubnet02Id:
+  #   Type: String
+
+Conditions:
+  IsDev: !Equals [!Ref NodeEnv, dev]
 
 Resources:
   # create the cluster
   ClusterEks:
     Type: AWS::EKS::Cluster
     Properties:
-      Name: !Sub '${NodeEnv}-k8s-kluster'
+      Name: !Sub '${NodeEnv}-${Organization}-${Project}-k8s-kluster'
       ResourcesVpcConfig: 
         SecurityGroupIds: 
           - !Ref ControlPlaneSecurityGroupId
         SubnetIds: 
           - !Ref PublicSubnet01Id
           - !Ref PublicSubnet02Id
-      RoleArn: !Ref eksClusterRoleArn
-      # Version: 1.21.2
+          # - !Ref PrivateSubnet01Id
+          # - !Ref PrivateSubnet02Id
+      RoleArn: !Ref EksClusterRoleArn
   
-  WebServerNodeGroup:
+  DefaultNodeGroup:
     DependsOn:
       - ClusterEks
     Type: AWS::EKS::Nodegroup
-    Properties: 
-      # AmiType: String
-      # CapacityType: String
+    Properties:
       ClusterName: !Ref ClusterEks
-      # DiskSize: Double
-      # ForceUpdateEnabled: Boolean
+      DiskSize: 20
       InstanceTypes: 
-        - t2.micro
-      # Labels: Json
-      # LaunchTemplate: 
-        # LaunchTemplateSpecification
-      NodegroupName: !Sub '${NodeEnv}-nodegroup'
+        - !If [IsDev, t2.micro, t3.medium] 
+      NodegroupName: !Sub '${NodeEnv}-${Organization}-${Project}-default'
       NodeRole: !Ref NodeInstanceRoleArn
-      # ReleaseVersion: String
-      # RemoteAccess: 
-        # RemoteAccess
       ScalingConfig: 
-        DesiredSize: 1
-        MaxSize: 1
-        MinSize: 0
+        DesiredSize: !If [IsDev, 1, 3]
+        MaxSize: !If [IsDev, 1, 10]
+        MinSize: !If [IsDev, 0, 3]
       Subnets: 
         - !Ref PublicSubnet01Id
         - !Ref PublicSubnet02Id
-      # Tags: Json
-      # Taints: 
-      #   - Taint
-      # UpdateConfig: 
-      #   UpdateConfig
-      # Version: String
+        # - !Ref PrivateSubnet01Id
+        # - !Ref PrivateSubnet02Id

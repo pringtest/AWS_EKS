@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maya-image
+  labels:
+    app: maya-image
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maya-image
+  template:
+    metadata:
+      labels:
+        app: maya-image
+    spec:
+      containers:
+        - name: maya-image
+          image: <AWS_ACCOUNT>.dkr.ecr.ap-southeast-1.amazonaws.com/<CONTAINER_NAME>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - protocol: TCP

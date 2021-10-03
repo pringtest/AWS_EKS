@@ -9,7 +9,7 @@
     },
     "scripts": {
         "test": "jest",
-        "fulldeploy-dev": "sh ./script/full_deploy_dev.sh"
+        "deploy": "sh ./script/deploy.sh"
     },
     "main": "index.js",
     "repository": "https://pringtest@github.com/pringtest/AWS_EKS.git",

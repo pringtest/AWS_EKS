@@ -3,34 +3,24 @@ Transform: AWS::Serverless-2016-10-31
 Description: dev-aws-eks
 
 Parameters:
+  Organization:
+    Type: String
+    Default: maybank
+  Project:
+    Type: String
+    Default: mae
   NodeEnv:
     Type: String
     Default: dev
   Region:
     Type: String
     Default: ap-southeast-1
-  LambdaRunTime:
-    Type: String
-    Default: nodejs14.x
-
-# Resources:
-  # helloFromLambdaFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Handler: src/handlers/hello-from-lambda.helloFromLambdaHandler
-  #     Runtime: nodejs14.x
-  #     MemorySize: 128
-  #     Timeout: 100
-  #     Description: A Lambda function that returns a static string.
-  #     Policies:
-  #       # Give Lambda basic execution Permission to the helloFromLambda
-  #       - AWSLambdaBasicExecutionRole
-
+  
 Resources:
   EKSRole:
     Type: AWS::Serverless::Application
     Properties:
-      Location: './stacks/amazon-eks-role.yml'
+      Location: './stacks/eks-role.yml'
       Parameters:
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
@@ -38,30 +28,38 @@ Resources:
   EKSResources:
     Type: AWS::Serverless::Application
     Properties:
-      Location: './stacks/amazon-eks-resources.yml'
+      Location: './stacks/eks-resources.yml'
       Parameters:
+        Organization: !Ref Organization
+        Project: !Ref Project
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
 
   EKSCustomVPC:
     Type: AWS::Serverless::Application
     Properties:
-      Location: './stacks/amazon-eks-vpc-private-public-subnets.yml'
+      Location: './stacks/eks-vpc.yml'
       Parameters:
+        Organization: !Ref Organization
+        Project: !Ref Project
         NodeEnv: !Ref NodeEnv
         Region: !Ref Region
   
-  # EKSCluster:
-  #   Type: AWS::Serverless::Application
-  #   Properties:
-  #     Location: './stacks/amazon-eks-cluster.yml' 
-  #     Parameters:
-  #       NodeEnv: !Ref NodeEnv
-  #       Region: !Ref Region
-  #       NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
-  #       eksClusterRoleArn: !GetAtt EKSRole.Outputs.eksClusterRoleArn
-  #       ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId
-  #       PublicSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet01Id
-  #       PublicSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet02Id
+  EKSCluster:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: './stacks/eks-cluster.yml' 
+      Parameters:
+        Organization: !Ref Organization
+        Project: !Ref Project
+        NodeEnv: !Ref NodeEnv
+        Region: !Ref Region
+        NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
+        EksClusterRoleArn: !GetAtt EKSRole.Outputs.EksClusterRoleArn
+        ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId
+        PublicSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet01Id
+        PublicSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PublicSubnet02Id
+        # PrivateSubnet01Id: !GetAtt EKSCustomVPC.Outputs.PrivateSubnet01Id
+        # PrivateSubnet02Id: !GetAtt EKSCustomVPC.Outputs.PrivateSubnet02Id
 
   

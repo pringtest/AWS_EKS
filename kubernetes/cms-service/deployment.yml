@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maya-cms
+  labels:
+    app: maya-cms
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maya-cms
+  template:
+    metadata:
+      labels:
+        app: maya-cms
+    spec:
+      containers:
+        - name: maya-cms
+          image: <AWS_ACCOUNT>.dkr.ecr.ap-southeast-1.amazonaws.com/<CONTAINER_NAME>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - protocol: TCP

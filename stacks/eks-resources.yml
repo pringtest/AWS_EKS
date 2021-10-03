@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Amazon EKS - Resources
+
+Parameters:
+  Organization:
+    Type: String
+  Project:
+    Type: String
+  NodeEnv:
+    Type: String
+  Region:
+    Type: String
+
+Resources:
+  EksContainerRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageTagMutability: IMMUTABLE
+      RepositoryName: !Sub '${NodeEnv}-${Organization}-${Project}-eks-container-repo'
+
+Outputs:
+  EksContainerRepoUri:
+    Value: !GetAtt EksContainerRepo.RepositoryUri
