@@ -52,7 +52,7 @@ Resources:
       ClusterName: !Ref ClusterEks
       DiskSize: 20
       InstanceTypes: 
-        - !If [IsDev, t2.medium, t3.medium] 
+        - !If [IsDev, t3.medium, t3.medium] 
       NodegroupName: !Sub '${NodeEnv}-${Organization}-${Project}-default'
       NodeRole: !Ref NodeInstanceRoleArn
       ScalingConfig: 
