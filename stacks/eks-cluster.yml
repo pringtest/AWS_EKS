@@ -52,13 +52,13 @@ Resources:
       ClusterName: !Ref ClusterEks
       DiskSize: 20
       InstanceTypes: 
-        - !If [IsDev, t2.micro, t3.medium] 
+        - !If [IsDev, t2.medium, t3.medium] 
       NodegroupName: !Sub '${NodeEnv}-${Organization}-${Project}-default'
       NodeRole: !Ref NodeInstanceRoleArn
       ScalingConfig: 
-        DesiredSize: !If [IsDev, 1, 3]
-        MaxSize: !If [IsDev, 1, 10]
-        MinSize: !If [IsDev, 0, 3]
+        DesiredSize: !If [IsDev, 3, 3]
+        MaxSize: !If [IsDev, 3, 10]
+        MinSize: !If [IsDev, 3, 3]
       Subnets: 
         - !Ref PublicSubnet01Id
         - !Ref PublicSubnet02Id
