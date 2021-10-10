@@ -29,13 +29,6 @@ yarn deploy
 aws eks --region <REGION> update-kubeconfig --name <CLUSTER_NAME>
 ```
 
-## Kubernetes Deployment
-- go to the ./kubernetes folder and deploy each service templates.
-```sh
-kubectl apply -f ./kubernetes/<SERVICE_FOLDER_NAME>/deployment.yaml
-kubectl apply -f ./kubernetes/<SERVICE_FOLDER_NAME>/service.yaml
-```
-
 ## Kubernetes Status
 - To check nodes, deployment, and pods run below command. Please refer [here][Kubectl Command] for more command.
 ```sh

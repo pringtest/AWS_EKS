@@ -1,12 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Amazon EKS - Role
 
-Parameters:
-  NodeEnv:
-    Type: String
-  Region:
-    Type: String
-
 Mappings:
   ServicePrincipals:
     aws-cn:

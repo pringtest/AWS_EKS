@@ -8,8 +8,6 @@ Parameters:
     Type: String
   NodeEnv:
     Type: String
-  Region:
-    Type: String
   VpcBlock: # The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range.
     Type: String
     Default: 192.168.0.0/16

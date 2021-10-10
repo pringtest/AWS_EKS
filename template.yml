@@ -5,10 +5,10 @@ Description: dev-aws-eks
 Parameters:
   Organization:
     Type: String
-    Default: maybank
+    Default: organizationname
   Project:
     Type: String
-    Default: mae
+    Default: projectname
   NodeEnv:
     Type: String
     Default: dev
@@ -21,9 +21,6 @@ Resources:
     Type: AWS::Serverless::Application
     Properties:
       Location: './stacks/eks-role.yml'
-      Parameters:
-        NodeEnv: !Ref NodeEnv
-        Region: !Ref Region
   
   EKSResources:
     Type: AWS::Serverless::Application
@@ -33,7 +30,6 @@ Resources:
         Organization: !Ref Organization
         Project: !Ref Project
         NodeEnv: !Ref NodeEnv
-        Region: !Ref Region
 
   EKSCustomVPC:
     Type: AWS::Serverless::Application
@@ -53,7 +49,6 @@ Resources:
         Organization: !Ref Organization
         Project: !Ref Project
         NodeEnv: !Ref NodeEnv
-        Region: !Ref Region
         NodeInstanceRoleArn: !GetAtt EKSRole.Outputs.NodeInstanceRoleArn
         EksClusterRoleArn: !GetAtt EKSRole.Outputs.EksClusterRoleArn
         ControlPlaneSecurityGroupId: !GetAtt EKSCustomVPC.Outputs.ControlPlaneSecurityGroupId

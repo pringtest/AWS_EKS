@@ -8,8 +8,6 @@ Parameters:
     Type: String
   NodeEnv:
     Type: String
-  Region:
-    Type: String
   NodeInstanceRoleArn:
     Type: String
   EksClusterRoleArn:
