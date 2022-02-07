@@ -2,8 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Amazon EKS - Cluster
 
 Parameters:
-  Organization:
-    Type: String
   Project:
     Type: String
   NodeEnv:
@@ -18,47 +16,78 @@ Parameters:
     Type: String
   PublicSubnet02Id:
     Type: String
-  # PrivateSubnet01Id:
-  #   Type: String
-  # PrivateSubnet02Id:
-  #   Type: String
-
-Conditions:
-  IsDev: !Equals [!Ref NodeEnv, dev]
+  PrivateSubnet01Id:
+    Type: String
+  PrivateSubnet02Id:
+    Type: String
 
 Resources:
-  # create the cluster
+  # Create the EKS Cluster
   ClusterEks:
     Type: AWS::EKS::Cluster
     Properties:
-      Name: !Sub '${NodeEnv}-${Organization}-${Project}-k8s-kluster'
+      Name: !Sub '${NodeEnv}-${Project}-k8s-cluster'
       ResourcesVpcConfig: 
         SecurityGroupIds: 
           - !Ref ControlPlaneSecurityGroupId
         SubnetIds: 
           - !Ref PublicSubnet01Id
           - !Ref PublicSubnet02Id
-          # - !Ref PrivateSubnet01Id
-          # - !Ref PrivateSubnet02Id
+          - !Ref PrivateSubnet01Id
+          - !Ref PrivateSubnet02Id
       RoleArn: !Ref EksClusterRoleArn
+
+  # Create launch template for node group
+  NodeGroupLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Sub '${NodeEnv}-${Project}-k8s-nodegroup-template'
+      LaunchTemplateData:
+        InstanceType: t3.large
+        BlockDeviceMappings: 
+          - DeviceName: /dev/xvda
+            Ebs: 
+              DeleteOnTermination: true
+              Encrypted: true
+              VolumeSize: 50
+              VolumeType: gp2
+        TagSpecifications:      
+          - ResourceType: instance
+            Tags: 
+              - Key: Name
+                Value: !Sub '${NodeEnv}-${Project}-k8s-cluster-node'
   
-  DefaultNodeGroup:
+  # Create node group
+  ClusterNodeGroup:
     DependsOn:
+      - NodeGroupLaunchTemplate
       - ClusterEks
     Type: AWS::EKS::Nodegroup
+    Condition: IsDevPRRegion
     Properties:
       ClusterName: !Ref ClusterEks
-      DiskSize: 20
-      InstanceTypes: 
-        - !If [IsDev, t3.medium, t3.medium] 
-      NodegroupName: !Sub '${NodeEnv}-${Organization}-${Project}-default'
+      LaunchTemplate:
+        Id: !Ref NodeGroupLaunchTemplate
+        Version: !GetAtt NodeGroupLaunchTemplate.LatestVersionNumber
+      NodegroupName: !Sub '${NodeEnv}-${Project}-cluster-node-group'
       NodeRole: !Ref NodeInstanceRoleArn
       ScalingConfig: 
-        DesiredSize: !If [IsDev, 3, 3]
-        MaxSize: !If [IsDev, 3, 10]
-        MinSize: !If [IsDev, 3, 3]
+        DesiredSize: 1
+        MaxSize: 1
+        MinSize: 0
       Subnets: 
         - !Ref PublicSubnet01Id
         - !Ref PublicSubnet02Id
-        # - !Ref PrivateSubnet01Id
-        # - !Ref PrivateSubnet02Id
+        - !Ref PrivateSubnet01Id
+        - !Ref PrivateSubnet02Id
+      Tags:
+        k8s.io/cluster-autoscaler/enabled: 'TRUE'
+        k8s.io/cluster-autoscaler/dev-k8s-cluster: 'owned'
+
+Outputs:
+  ClusterEksOpenIdConnectIssuerUrl:
+    Value: !GetAtt ClusterEks.OpenIdConnectIssuerUrl
+  ClusterEksOpenIdConnectIssuerUrl:
+    Value: !GetAtt ClusterEks.OpenIdConnectIssuerUrl
+  ClusterEksName:
+    Value: !Ref ClusterEks
